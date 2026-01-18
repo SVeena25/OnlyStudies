@@ -104,9 +104,48 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-light py-4 mt-5 border-top">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2026 OnlyStudies. All rights reserved.</p>
+    <footer class="py-4 mt-5" style="background-color: #2A2A2A; color: white;">
+        <div class="container">
+            <div class="row">
+                <!-- Quick Links Section -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'blog_feed' %}" class="text-white text-decoration-none">Blog Feed</a></li>
+                        <li class="mb-2"><a href="{% url 'forum' %}" class="text-white text-decoration-none">Forum</a></li>
+                        <li class="mb-2"><a href="{% url 'ask_question' %}" class="text-white text-decoration-none">Ask Question</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Exams Section -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="mb-3">Explore Exams</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'apply_exam' 'exam-1' %}" class="text-white text-decoration-none">Exam 1</a></li>
+                        <li class="mb-2"><a href="{% url 'apply_exam' 'exam-2' %}" class="text-white text-decoration-none">Exam 2</a></li>
+                        <li class="mb-2"><a href="{% url 'apply_exam' 'exam-3' %}" class="text-white text-decoration-none">Exam 3</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Connect With Us Section -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="mb-3">Connect With Us</h5>
+                    <div class="mb-3">
+                        <a href="https://github.com" target="_blank" class="text-white me-3" style="font-size: 1.5rem; text-decoration: none;" title="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+                        <a href="https://linkedin.com" target="_blank" class="text-white" style="font-size: 1.5rem; text-decoration: none;" title="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="text-center mt-3 pt-3 border-top border-white border-opacity-25">
+                <p class="mb-0">&copy; 2026 OnlyStudies. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
