@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Default to True for local dev; set DEBUG=False in production via env
-DEBUG = False
+DEBUG = True
 
 # Allow local dev and common loopback hosts; add prod domains as needed
 ALLOWED_HOSTS = ["localhost", 
@@ -39,7 +39,6 @@ ALLOWED_HOSTS = ["localhost",
                  "testserver",
                  "0.0.0.0",
                  "only-studies-61de8e7773bd.herokuapp.com"]
-
 
 # Application definition
 
