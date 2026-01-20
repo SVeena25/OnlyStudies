@@ -4,12 +4,20 @@ from django.urls import path
 urlpatterns = [
     path('', 
         views.HomePage.as_view(), name='home'),
+    path('about/', 
+        views.AboutView.as_view(), name='about'),
     path('signup/', 
         views.SignUpView.as_view(), name='signup'),
     path('login/', 
         views.CustomLoginView.as_view(), name='login'),
     path('logout/', 
         views.CustomLogoutView.as_view(), name='logout'),
+    path('tasks/', 
+        views.TaskListView.as_view(), name='tasks'),
+    path('appointments/', 
+        views.AppointmentListView.as_view(), name='appointments'),
+    path('appointments/book/', 
+        views.AppointmentCreateView.as_view(), name='book_appointment'),
     path('search/', 
         views.SearchResultsView.as_view(), name='search'),
     path('category/<slug:category_slug>/', 
@@ -22,6 +30,12 @@ urlpatterns = [
         views.BlogFeedView.as_view(), name='blog_feed'),
     path('blog/<slug:slug>/', 
         views.BlogPostDetailView.as_view(), name='blog_detail'),
+    path('blog/<slug:slug>/delete/', 
+        views.DeleteBlogPostView.as_view(), name='delete_blog'),
+
+    # Notifications
+    path('notifications/', 
+        views.NotificationsView.as_view(), name='notifications'),
     
     # Forum
     path('forum/', 
@@ -30,8 +44,12 @@ urlpatterns = [
         views.AskQuestionView.as_view(), name='ask_question'),
     path('forum/<slug:slug>/', 
         views.ForumQuestionDetailView.as_view(), name='forum_question'),
+    path('forum/<slug:slug>/delete/', 
+        views.DeleteForumQuestionView.as_view(), name='delete_question'),
     path('forum/<slug:slug>/answer/', 
         views.post_answer, name='post_answer'),
+    path('forum/<slug:slug>/answer/<int:answer_id>/delete/', 
+        views.DeleteForumAnswerView.as_view(), name='delete_answer'),
     
     # Exam Application
     path('apply/<str:exam_name>/', 
@@ -40,4 +58,6 @@ urlpatterns = [
     # API Endpoints
     path('api/blog-feed/', 
         views.blog_feed_api, name='blog_feed_api'),
+    path('api/notifications/', 
+        views.notifications_api, name='notifications_api'),
 ]

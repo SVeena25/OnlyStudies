@@ -30,8 +30,8 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Default to True for local dev; set DEBUG=False in production via env
-DEBUG = False
+# Defaults to False for production safety; set DEBUG=True in env.py for local development
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Allow local dev and common loopback hosts; add prod domains as needed
 ALLOWED_HOSTS = ["localhost", 

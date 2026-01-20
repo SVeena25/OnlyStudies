@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<main class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="mb-0">Notifications</h5>
+                        <span class="text-muted small">{{ page_obj.paginator.count }} total</span>
+                    </div>
+
+                    {% if notifications %}
+                        <ul class="list-group list-group-flush">
+                            {% for notification in notifications %}
+                                <li class="list-group-item d-flex flex-column flex-sm-row align-items-sm-start justify-content-between gap-2">
+                                    <div>
+                                        <div class="fw-semibold">{{ notification.title }}</div>
+                                        <small class="text-muted">{{ notification.created_at|date:"M d, Y h:i A" }}</small>
+                                        <p class="mb-2 mt-1">{{ notification.message }}</p>
+                                        {% if notification.related_url %}
+                                            <a href="{{ notification.related_url }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Open</a>
+                                        {% endif %}
+                                    </div>
+                                    {% if not notification.is_read %}
+                                        <span class="badge bg-info text-dark align-self-start">New</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="mb-0 text-muted">No notifications yet.</p>
+                    {% endif %}
+
+                    {% if is_paginated %}
+                        <nav class="mt-3" aria-label="Notifications pagination">
+                            <ul class="pagination mb-0">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                                {% endif %}
+
+                                <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

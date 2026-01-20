@@ -1,37 +1,100 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
-from django.views.generic import TemplateView, CreateView, ListView, DetailView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, DeleteView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, JsonResponse
-from .forms import SignUpForm, ForumQuestionForm, ForumAnswerForm
-from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer
+from django.core.exceptions import PermissionDenied
+from .forms import SignUpForm, ForumQuestionForm, ForumAnswerForm, AppointmentForm
+from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer, Task, Appointment
 
 
 class HomePage(TemplateView):
     """
-    Displays home page with blog feed and notifications
+    Displays home page
     """
     template_name = 'index.html'
-    
+
+
+class AboutView(TemplateView):
+    """
+    Displays about page
+    """
+    template_name = 'about.html'
+
+
+class TaskListView(LoginRequiredMixin, ListView):
+    """
+    List view for tasks with filtering and sorting by due date, priority, and category.
+    """
+    model = Task
+    template_name = 'tasks.html'
+    context_object_name = 'tasks'
+    paginate_by = 20
+    login_url = reverse_lazy('login')
+
+    def get_queryset(self):
+        qs = Task.objects.filter(created_by=self.request.user).select_related('category')
+
+        # Filters
+        category_slug = self.request.GET.get('category')
+        priority = self.request.GET.get('priority')
+        due_before = self.request.GET.get('due_before')
+        due_after = self.request.GET.get('due_after')
+
+        if category_slug:
+            qs = qs.filter(category__slug=category_slug)
+        if priority in {'low', 'medium', 'high'}:
+            qs = qs.filter(priority=priority)
+        # Parse date filters (YYYY-MM-DD)
+        from datetime import datetime
+        date_fmt = '%Y-%m-%d'
+        if due_before:
+            try:
+                dt = datetime.strptime(due_before, date_fmt)
+                qs = qs.filter(due_date__date__lte=dt.date())
+            except ValueError:
+                pass
+        if due_after:
+            try:
+                dt = datetime.strptime(due_after, date_fmt)
+                qs = qs.filter(due_date__date__gte=dt.date())
+            except ValueError:
+                pass
+
+        # Sorting
+        sort = self.request.GET.get('sort')
+        allowed_sorts = {
+            'due_asc': 'due_date',
+            'due_desc': '-due_date',
+            'priority_asc': 'priority',
+            'priority_desc': '-priority',
+            'title_asc': 'title',
+            'title_desc': '-title',
+            'created_desc': '-created_at',
+        }
+        if sort in allowed_sorts:
+            qs = qs.order_by(allowed_sorts[sort])
+
+        return qs
+
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        # Fetch notifications for authenticated users
-        if self.request.user.is_authenticated:
-            context['notifications'] = Notification.objects.filter(
-                user=self.request.user, 
-                is_read=False
-            ).order_by('-created_at')[:5]
-        else:
-            context['notifications'] = []
-        
-        return context
+        ctx = super().get_context_data(**kwargs)
+        ctx['categories'] = Category.objects.all()
+        ctx['selected'] = {
+            'category': self.request.GET.get('category') or '',
+            'priority': self.request.GET.get('priority') or '',
+            'due_before': self.request.GET.get('due_before') or '',
+            'due_after': self.request.GET.get('due_after') or '',
+            'sort': self.request.GET.get('sort') or '',
+        }
+        ctx['page_title'] = 'My Tasks'
+        return ctx
 
 
 class SearchResultsView(TemplateView):
@@ -175,6 +238,46 @@ def blog_feed_api(request):
     return JsonResponse({'blogs': blog_data})
 
 
+def notifications_api(request):
+    """
+    API endpoint to fetch user notifications
+    Returns latest 5 unread notifications for logged-in user
+    """
+    if not request.user.is_authenticated:
+        # Require authentication for notifications API
+        return JsonResponse({'detail': 'Authentication required'}, status=401)
+    
+    try:
+        notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')[:5]
+        notifications_data = []
+        
+        for notification in notifications:
+            notifications_data.append({
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'type': notification.notification_type,
+                'is_read': notification.is_read,
+                'created_at': notification.created_at.isoformat(),
+                'url': notification.related_url,
+            })
+        
+        return JsonResponse({'notifications': notifications_data})
+    except Exception as e:
+        return JsonResponse({'notifications': [], 'error': str(e)})
+
+
+class NotificationsView(LoginRequiredMixin, ListView):
+    """Full notifications list for the current user"""
+    model = Notification
+    template_name = 'notifications.html'
+    context_object_name = 'notifications'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+
+
 class BlogFeedView(ListView):
     """
     View for displaying blog feed
@@ -297,6 +400,43 @@ class AskQuestionView(LoginRequiredMixin, CreateView):
         return context
 
 
+class AppointmentListView(LoginRequiredMixin, ListView):
+    """
+    List all appointments for the current user.
+    """
+    model = Appointment
+    template_name = 'appointments.html'
+    context_object_name = 'appointments'
+    paginate_by = 20
+    login_url = reverse_lazy('login')
+
+    def get_queryset(self):
+        return Appointment.objects.filter(created_by=self.request.user).order_by('appointment_datetime')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['page_title'] = 'My Appointments'
+        return ctx
+
+
+class AppointmentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Simple booking view for creating an appointment.
+    """
+    model = Appointment
+    form_class = AppointmentForm
+    template_name = 'book_appointment.html'
+    login_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        messages.success(self.request, 'Your appointment has been booked successfully!')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('appointments')
+
+
 def post_answer(request, slug):
     """
     View for posting answers to forum questions
@@ -337,4 +477,71 @@ def apply_exam(request, exam_name):
         'page_title': f'Apply for {exam_name.replace("-", " ").title()}'
     }
     return render(request, 'apply_exam.html', context)
+
+
+class IsAuthorMixin(UserPassesTestMixin):
+    """
+    Mixin to check if the user is the author of the object
+    """
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user
+    
+    def handle_no_permission(self):
+        messages.error(self.request, 'You do not have permission to delete this item.')
+        return redirect(self.request.META.get('HTTP_REFERER', 'forum'))
+
+
+class DeleteForumQuestionView(LoginRequiredMixin, IsAuthorMixin, DeleteView):
+    """
+    View for deleting a forum question
+    Only the author can delete their own question
+    """
+    model = ForumQuestion
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    success_url = reverse_lazy('forum')
+    login_url = reverse_lazy('login')
+    
+    def delete(self, request, *args, **kwargs):
+        """Delete the question and show success message"""
+        messages.success(request, 'Your question has been deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+
+class DeleteForumAnswerView(LoginRequiredMixin, IsAuthorMixin, DeleteView):
+    """
+    View for deleting a forum answer
+    Only the author can delete their own answer
+    """
+    model = ForumAnswer
+    pk_url_kwarg = 'answer_id'
+    login_url = reverse_lazy('login')
+    
+    def get_success_url(self):
+        """Redirect back to the question"""
+        return reverse_lazy('forum_question', kwargs={'slug': self.object.question.slug})
+    
+    def delete(self, request, *args, **kwargs):
+        """Delete the answer and show success message"""
+        messages.success(request, 'Your answer has been deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+
+class DeleteBlogPostView(LoginRequiredMixin, IsAuthorMixin, DeleteView):
+    """
+    View for deleting a blog post
+    Only the author can delete their own post
+    """
+    model = BlogPost
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    success_url = reverse_lazy('blog_feed')
+    login_url = reverse_lazy('login')
+    
+    def delete(self, request, *args, **kwargs):
+        """Delete the blog post and show success message"""
+        messages.success(request, 'Your blog post has been deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
 

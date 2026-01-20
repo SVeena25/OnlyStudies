@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer
+from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer, Task, Appointment
 
 
 class SubCategoryInline(admin.TabularInline):
@@ -141,5 +141,29 @@ class ForumAnswerAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    """
+    Admin for Task model
+    """
+    list_display = ('title', 'created_by', 'category', 'priority', 'due_date', 'created_at')
+    list_filter = ('priority', 'category', 'due_date', 'created_at')
+    search_fields = ('title', 'description', 'created_by__username')
+    readonly_fields = ('created_at',)
+    fields = ('title', 'description', 'category', 'priority', 'due_date', 'created_by')
+
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    """
+    Admin for Appointment model
+    """
+    list_display = ('title', 'created_by', 'appointment_datetime', 'created_at')
+    list_filter = ('appointment_datetime', 'created_at')
+    search_fields = ('title', 'notes', 'created_by__username')
+    readonly_fields = ('created_at',)
+    fields = ('title', 'notes', 'appointment_datetime', 'created_by')
 
 

@@ -53,9 +53,14 @@
                             Asked by <strong>{{ question.author.get_full_name|default:question.author.username }}</strong>
                             • {{ question.created_at|date:"M d, Y" }} at {{ question.created_at|time:"g:i A" }}
                         </small>
-                        {% if question.author == user %}
-                            <span class="badge bg-info">Your Question</span>
-                        {% endif %}
+                        <div>
+                            {% if question.author == user %}
+                                <span class="badge bg-info me-2">Your Question</span>
+                                <a href="{% url 'delete_question' question.slug %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this question? This action cannot be undone.');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,9 +87,14 @@
                                         Answered by <strong>{{ answer.author.get_full_name|default:answer.author.username }}</strong>
                                         • {{ answer.created_at|date:"M d, Y" }} at {{ answer.created_at|time:"g:i A" }}
                                     </small>
-                                    {% if answer.author == user %}
-                                        <span class="badge bg-info">Your Answer</span>
-                                    {% endif %}
+                                    <div>
+                                        {% if answer.author == user %}
+                                            <span class="badge bg-info me-2">Your Answer</span>
+                                            <a href="{% url 'delete_answer' question.slug answer.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this answer?');">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}

@@ -137,3 +137,45 @@ class ForumAnswer(models.Model):
     def __str__(self):
         return f"Answer by {self.author.username} on {self.question.title}"
 
+
+class Task(models.Model):
+    """
+    Task model to support filtering and sorting by due date, priority, and category
+    """
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    ]
+
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    due_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['due_date', 'priority', 'title']
+
+    def __str__(self):
+        return self.title
+
+
+class Appointment(models.Model):
+    """
+    Simple appointment booking for services/events at a specific date and time.
+    """
+    title = models.CharField(max_length=200)
+    notes = models.TextField(blank=True)
+    appointment_datetime = models.DateTimeField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['appointment_datetime', 'title']
+
+    def __str__(self):
+        return f"{self.title} @ {self.appointment_datetime.isoformat()}"
+

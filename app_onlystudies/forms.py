@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import ForumQuestion, ForumAnswer
+from .models import ForumQuestion, ForumAnswer, Appointment
 
 
 class SignUpForm(forms.ModelForm):
@@ -159,3 +159,35 @@ class ForumAnswerForm(forms.ModelForm):
         if len(content) < 10:
             raise ValidationError("Answer must be at least 10 characters long.")
         return content
+
+
+class AppointmentForm(forms.ModelForm):
+    """
+    Form for booking appointments/events/services at a specific date and time.
+    """
+    class Meta:
+        model = Appointment
+        fields = ('title', 'notes', 'appointment_datetime')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Appointment title (e.g., Counseling Session)',
+                'required': True
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Optional details...',
+                'rows': 4
+            }),
+            'appointment_datetime': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+                'required': True
+            })
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '').strip()
+        if len(title) < 3:
+            raise ValidationError('Title must be at least 3 characters long.')
+        return title
