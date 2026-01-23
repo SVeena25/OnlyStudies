@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import ForumQuestion, ForumAnswer, Appointment
+from .models import ForumQuestion, ForumAnswer, Appointment, BlogPost, Task
 
 
 class SignUpForm(forms.ModelForm):
@@ -190,4 +190,88 @@ class AppointmentForm(forms.ModelForm):
         title = self.cleaned_data.get('title', '').strip()
         if len(title) < 3:
             raise ValidationError('Title must be at least 3 characters long.')
+        return title
+
+
+class BlogPostForm(forms.ModelForm):
+    """
+    Form for creating and updating blog posts
+    """
+    class Meta:
+        model = BlogPost
+        fields = ('title', 'content', 'category', 'featured_image', 'is_published')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter blog post title',
+                'required': True
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write your blog post here...',
+                'rows': 8,
+                'required': True
+            }),
+            'category': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'featured_image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+            'is_published': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+
+    def clean_title(self):
+        """Validate title"""
+        title = self.cleaned_data.get('title')
+        if len(title) < 5:
+            raise ValidationError("Blog post title must be at least 5 characters long.")
+        return title
+
+    def clean_content(self):
+        """Validate content"""
+        content = self.cleaned_data.get('content')
+        if len(content) < 50:
+            raise ValidationError("Blog post content must be at least 50 characters long.")
+        return content
+
+
+class TaskForm(forms.ModelForm):
+    """
+    Form for creating and updating tasks
+    """
+    class Meta:
+        model = Task
+        fields = ('title', 'description', 'category', 'priority', 'due_date')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Task title',
+                'required': True
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Task description (optional)',
+                'rows': 4
+            }),
+            'category': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'priority': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'due_date': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            })
+        }
+
+    def clean_title(self):
+        """Validate title"""
+        title = self.cleaned_data.get('title')
+        if len(title) < 3:
+            raise ValidationError("Task title must be at least 3 characters long.")
         return title

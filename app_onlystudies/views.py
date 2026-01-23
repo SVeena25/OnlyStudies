@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
-from django.views.generic import TemplateView, CreateView, ListView, DetailView, DeleteView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, DeleteView, UpdateView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import PermissionDenied
-from .forms import SignUpForm, ForumQuestionForm, ForumAnswerForm, AppointmentForm
+from .forms import SignUpForm, ForumQuestionForm, ForumAnswerForm, AppointmentForm, BlogPostForm, TaskForm
 from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer, Task, Appointment
 
 
@@ -490,6 +490,144 @@ class IsAuthorMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         messages.error(self.request, 'You do not have permission to delete this item.')
         return redirect(self.request.META.get('HTTP_REFERER', 'forum'))
+
+
+class UpdateBlogPostView(LoginRequiredMixin, IsAuthorMixin, UpdateView):
+    """
+    View for updating a blog post
+    Only the author can update their own post
+    """
+    model = BlogPost
+    form_class = BlogPostForm
+    template_name = 'edit_blog_post.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    login_url = reverse_lazy('login')
+    
+    def form_valid(self, form):
+        """Update the blog post and show success message"""
+        messages.success(self.request, 'Your blog post has been updated successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect to the blog post detail page"""
+        return reverse_lazy('blog_detail', kwargs={'slug': self.object.slug})
+
+
+class UpdateForumQuestionView(LoginRequiredMixin, IsAuthorMixin, UpdateView):
+    """
+    View for updating a forum question
+    Only the author can update their own question
+    """
+    model = ForumQuestion
+    form_class = ForumQuestionForm
+    template_name = 'edit_forum_question.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    login_url = reverse_lazy('login')
+    
+    def form_valid(self, form):
+        """Update the question and show success message"""
+        messages.success(self.request, 'Your question has been updated successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect to the forum question detail page"""
+        return reverse_lazy('forum_question', kwargs={'slug': self.object.slug})
+
+
+class UpdateForumAnswerView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating a forum answer
+    Only the author can update their own answer
+    """
+    model = ForumAnswer
+    form_class = ForumAnswerForm
+    template_name = 'edit_forum_answer.html'
+    pk_url_kwarg = 'answer_id'
+    login_url = reverse_lazy('login')
+    
+    def test_func(self):
+        """Check if user is the author of the answer"""
+        obj = self.get_object()
+        return obj.author == self.request.user
+    
+    def handle_no_permission(self):
+        """Handle permission denied"""
+        messages.error(self.request, 'You do not have permission to edit this answer.')
+        return redirect(self.request.META.get('HTTP_REFERER', 'forum'))
+    
+    def form_valid(self, form):
+        """Update the answer and show success message"""
+        messages.success(self.request, 'Your answer has been updated successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect back to the question"""
+        return reverse_lazy('forum_question', kwargs={'slug': self.object.question.slug})
+
+
+class UpdateTaskView(LoginRequiredMixin, UpdateView):
+    """
+    View for updating a task
+    Only the creator can update their own task
+    """
+    model = Task
+    form_class = TaskForm
+    template_name = 'edit_task.html'
+    pk_url_kwarg = 'pk'
+    login_url = reverse_lazy('login')
+    
+    def test_func(self):
+        """Check if user created the task"""
+        obj = self.get_object()
+        return obj.created_by == self.request.user
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check permissions before processing request"""
+        obj = self.get_object()
+        if obj.created_by != request.user:
+            messages.error(request, 'You do not have permission to edit this task.')
+            return redirect('tasks')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        """Update the task and show success message"""
+        messages.success(self.request, 'Your task has been updated successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect back to tasks"""
+        return reverse_lazy('tasks')
+
+
+class UpdateAppointmentView(LoginRequiredMixin, UpdateView):
+    """
+    View for updating an appointment
+    Only the creator can update their own appointment
+    """
+    model = Appointment
+    form_class = AppointmentForm
+    template_name = 'edit_appointment.html'
+    pk_url_kwarg = 'pk'
+    login_url = reverse_lazy('login')
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check permissions before processing request"""
+        obj = self.get_object()
+        if obj.created_by != request.user:
+            messages.error(request, 'You do not have permission to edit this appointment.')
+            return redirect('appointments')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        """Update the appointment and show success message"""
+        messages.success(self.request, 'Your appointment has been updated successfully!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect back to appointments"""
+        return reverse_lazy('appointments')
 
 
 class DeleteForumQuestionView(LoginRequiredMixin, IsAuthorMixin, DeleteView):
