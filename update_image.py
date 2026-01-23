@@ -10,8 +10,8 @@ from app_onlystudies.models import BlogPost
 # UPDATE THIS SECTION WITH YOUR BLOG POST TITLE AND CLOUDINARY IMAGE URL
 # ============================================================================
 
-POST_TITLE = 'Effective Study Techniques for Online Learning'  # Change this to the blog post title
-CLOUDINARY_URL = 'https://res.cloudinary.com/dzuzzg6cy/image/upload/v1769211043/how_to_bcm_teacher_grjew8.png'  # Change this to your Cloudinary URL
+POST_TITLE = 'Medical Terminology for Healthcare Professionals'  # Change this to the blog post title
+CLOUDINARY_URL = 'https://res.cloudinary.com/dzuzzg6cy/image/upload/v1769211041/logo_anrauh.png'  # Change this to your Cloudinary URL
 
 # ============================================================================
 # Script execution
