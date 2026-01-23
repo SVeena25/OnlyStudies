@@ -193,19 +193,19 @@
             <!-- Ask Your Question -->
             <div class="row g-3 mb-3">
                 <div class="col-12">
-                    <div class="card" style="width: 854.667px; height: 200.667px; margin-left: auto; margin-right: auto;">
+                    <div class="card" style="width: 100%; max-width: 854px; margin-left: auto; margin-right: auto;">
                         <div class="card-body text-center" style="background-color: #ffefd2;">
                             <h4 class="mb-3 fw-bold">
                                 <i class="bi bi-chat-dots me-2"></i>Student Forum
                             </h4>
                             <div class="whiteWrapBox mb-3">
-                                <div class="flx-box mA d-flex align-items-center gap-2 mb-2">
+                                <div class="flx-box mA d-flex align-items-center gap-2 mb-2 flex-wrap">
                                     <i class="bi bi-chat-left-text"></i>
                                     <strong>Anything you would want to ask experts?</strong>
                                 </div>
                                 <div id="askTxtBx" class="qst-txtar form-control" contenteditable="true" style="min-height: 60px; text-align: left; background-color: white;">Write here...</div>
                             </div>
-                            <div class="d-flex gap-2 justify-content-center">
+                            <div class="d-flex gap-2 justify-content-center flex-wrap">
                                 <a href="{% url 'forum' %}" class="btn btn-primary">
                                     <i class="bi bi-chat-dots me-2"></i>View Forum
                                 </a>
