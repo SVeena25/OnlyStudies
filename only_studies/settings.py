@@ -152,7 +152,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # WhiteNoise configuration for efficient static file serving
-STATICFILES_STORAGE = 'whitenoise.storage.WhiteNoiseStaticFilesStorage'
+# WhiteNoise will serve files directly from STATICFILES_DIRS
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Cache static files for 1 year (since they're cache-busted with hashes)
 WHITENOISE_MAX_AGE = 31536000  # 1 year in seconds
