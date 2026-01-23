@@ -151,12 +151,14 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise configuration for efficient static file serving
-# WhiteNoise will serve files directly from STATICFILES_DIRS
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
 # Cache static files for 1 year (since they're cache-busted with hashes)
 WHITENOISE_MAX_AGE = 31536000  # 1 year in seconds
+
+# Use WhiteNoise for static file serving in production
+if DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'whitenoise.storage.WhiteNoiseStaticFilesStorage'
 
 # Media files (User uploads)
 MEDIA_URL = '/media/'
