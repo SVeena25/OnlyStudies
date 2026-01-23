@@ -160,13 +160,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Cloudinary Configuration for Media Storage
 if not DEBUG:
-    # Try to use Cloudinary if credentials are available
-    cloudinary_url = os.environ.get('CLOUDINARY_URL', '')
-    if cloudinary_url and '<your_api_key>' not in cloudinary_url:
-        DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    else:
-        # Fallback to local file storage if Cloudinary not configured
-        DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    # Use Cloudinary for production media storage
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    # Use local file storage for development
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 
 # Default primary key field type
