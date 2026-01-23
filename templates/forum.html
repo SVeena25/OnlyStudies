@@ -29,24 +29,30 @@
                 <div class="list-group">
                     {% for question in questions %}
                         <a href="{% url 'forum_question' question.slug %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1">
+                            <div class="d-flex flex-column flex-md-row w-100 justify-content-between align-items-start gap-2">
+                                <div class="flex-grow-1 w-100">
+                                    <h5 class="mb-2">
                                         {{ question.title }}
                                         {% if question.is_answered %}
-                                            <span class="badge bg-success ms-2">Answered</span>
+                                            <span class="badge bg-success ms-2 d-inline-block">Answered</span>
                                         {% endif %}
                                     </h5>
-                                    <p class="mb-1 text-muted">{{ question.content|truncatewords:20 }}</p>
-                                    <small class="text-muted">
-                                        <i class="bi bi-person-circle"></i> {{ question.author.username }}
+                                    <p class="mb-2 text-muted d-none d-md-block small">{{ question.content|truncatewords:20 }}</p>
+                                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-person-circle"></i> {{ question.author.username }}
+                                        </small>
                                         {% if question.category %}
-                                            • <span class="badge bg-secondary">{{ question.category.name }}</span>
+                                            <span class="badge bg-secondary">{{ question.category.name }}</span>
                                         {% endif %}
-                                        • <i class="bi bi-eye"></i> {{ question.views }} views
-                                        • <i class="bi bi-chat-left"></i> {{ question.answer_count }} answers
-                                        • {{ question.created_at|timesince }} ago
-                                    </small>
+                                        <small class="text-muted">
+                                            <i class="bi bi-eye"></i> {{ question.views }}
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="bi bi-chat-left"></i> {{ question.answer_count }}
+                                        </small>
+                                        <small class="text-muted">{{ question.created_at|timesince }} ago</small>
+                                    </div>
                                 </div>
                             </div>
                         </a>
