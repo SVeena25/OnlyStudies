@@ -1,3 +1,9 @@
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'only_studies.settings')
+django.setup()
+
 from app_onlystudies.models import BlogPost
 
 # Update Time Management blog post
