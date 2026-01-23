@@ -220,9 +220,9 @@ if not DEBUG:
         "default-src": ("'self'",),
         "script-src": ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "code.jquery.com"),
         "style-src": ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net"),
-        "img-src": ("'self'", "data:", "https:"),
+        "img-src": ("'self'", "data:", "https:", "*.cloudinary.com"),
         "font-src": ("'self'", "cdn.jsdelivr.net"),
-        "connect-src": ("'self'",),
+        "connect-src": ("'self'", "*.cloudinary.com"),
     }
 
     # Additional Security Headers
