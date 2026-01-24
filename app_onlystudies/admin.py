@@ -32,12 +32,34 @@ class BlogPostAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Replace the featured_image widget with custom Cloudinary widget
+        self.fields['featured_image'].required = False
         self.fields['featured_image'].widget = CloudinaryUploadWidget()
         self.fields['featured_image'].widget.attrs.update({
             'placeholder': 'Paste Cloudinary image URL here or use the upload button below'
         })
         self.fields['featured_image'].label = 'Featured Image (Cloudinary URL)'
         self.fields['featured_image'].help_text = 'Upload via Cloudinary widget or paste a Cloudinary image URL'
+    
+    def clean_featured_image(self):
+        """
+        Handle Cloudinary URL properly - convert to just the path/URL string
+        """
+        featured_image = self.cleaned_data.get('featured_image')
+        
+        # If it's empty or None, return as is
+        if not featured_image:
+            return featured_image
+        
+        # If it's already a string (Cloudinary URL), return it
+        if isinstance(featured_image, str):
+            return featured_image
+        
+        # If it has a .name attribute, it's a file upload - return as is
+        if hasattr(featured_image, 'name'):
+            return featured_image
+        
+        # Otherwise convert to string
+        return str(featured_image) if featured_image else None
 
 
 class SubCategoryInline(admin.TabularInline):
@@ -173,6 +195,19 @@ class BlogPostAdmin(admin.ModelAdmin):
             '</div>'
         )
     image_preview_large.short_description = 'Image Preview'
+    
+    def save_model(self, request, obj, form, change):
+        """
+        Custom save to handle Cloudinary URL in featured_image field
+        """
+        # If featured_image was changed and it's a URL string, save it directly
+        if 'featured_image' in form.changed_data:
+            featured_image = form.cleaned_data.get('featured_image')
+            if featured_image and isinstance(featured_image, str):
+                # It's a Cloudinary URL string, assign it directly
+                obj.featured_image = featured_image
+        
+        super().save_model(request, obj, form, change)
     
     def get_fields(self, request, obj=None):
         """
