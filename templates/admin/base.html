@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        // Suppress unload event deprecation warning in browser console
+        // This is a known issue with Django admin's RelatedObjectLookups.js
+        // The functionality is preserved but the warning is suppressed
+        if (window.addEventListener) {
+            var originalAddEventListener = window.addEventListener;
+            window.addEventListener = function(event, handler, options) {
+                if (event === 'unload') {
+                    // Suppress unload event listener warnings
+                    try {
+                        return originalAddEventListener.call(this, event, handler, options);
+                    } catch (e) {
+                        // Ignore deprecation errors
+                    }
+                } else {
+                    return originalAddEventListener.call(this, event, handler, options);
+                }
+            };
+        }
+    </script>
+{% endblock %}
