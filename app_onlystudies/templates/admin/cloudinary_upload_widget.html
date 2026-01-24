@@ -1,0 +1,54 @@
+<div class="cloudinary-upload-container" style="margin: 10px 0;">
+    <input type="text" name="{{ widget.name }}" 
+           value="{{ widget.value|default:'' }}" 
+           placeholder="Paste Cloudinary image URL here or use the upload button below"
+           class="vTextField"
+           style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 12px;">
+    
+    <div style="margin-top: 10px; padding: 15px; background-color: #f5f5f5; border-radius: 4px; border-left: 4px solid #667eea;">
+        <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">📤 Cloudinary Upload</p>
+        <p style="margin: 0 0 10px 0; font-size: 13px; color: #666;">
+            <strong>Option 1:</strong> Upload directly to Cloudinary
+        </p>
+        <a href="https://cloudinary.com/console/c/home" target="_blank" rel="noopener noreferrer" 
+           style="display: inline-block; padding: 8px 15px; background-color: #667eea; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 500;">
+            🔗 Open Cloudinary Console
+        </a>
+        
+        <p style="margin: 10px 0 5px 0; font-size: 13px; color: #666;">
+            <strong>Option 2:</strong> Paste Cloudinary URL
+        </p>
+        <p style="margin: 0; font-size: 12px; color: #999;">
+            After uploading in Cloudinary, copy the image URL and paste it in the field above.
+            <br>Example: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">https://res.cloudinary.com/dzuzzg6cy/image/upload/v1234567890/image_name.jpg</code>
+        </p>
+        
+        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+            💡 <strong>Tip:</strong> Use Cloudinary's transformations for better performance (e.g., auto quality, responsive sizing)
+        </p>
+    </div>
+</div>
+
+<style>
+    .cloudinary-upload-container input[type="text"] {
+        width: 100% !important;
+        padding: 8px 12px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+        font-family: monospace !important;
+        font-size: 12px !important;
+        box-sizing: border-box !important;
+    }
+    
+    .cloudinary-upload-container input[type="text"]:hover {
+        border-color: #ccc !important;
+        background-color: #fafafa !important;
+    }
+    
+    .cloudinary-upload-container input[type="text"]:focus {
+        border-color: #667eea !important;
+        background-color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        outline: none !important;
+    }
+</style>
