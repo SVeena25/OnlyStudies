@@ -11,7 +11,7 @@ from app_onlystudies.models import BlogPost
 # ============================================================================
 
 POST_TITLE = 'Become a Teacher'  # Change this to the blog post title
-CLOUDINARY_URL = 'https://res.cloudinary.com/dzuzzg6cy/image/upload/v1769211041/heroimage_p7uxkw.png'  # Change this to your Cloudinary URL
+CLOUDINARY_URL = 'https://res.cloudinary.com/dzuzzg6cy/image/upload/v1769211040/blog_qa1ul8.png'  # Change this to your Cloudinary URL
 
 # ============================================================================
 # Script execution
