@@ -13,16 +13,11 @@ class CloudinaryUploadWidget(forms.widgets.TextInput):
     def __init__(self, attrs=None):
         default_attrs = {
             'class': 'vTextField',
-            'placeholder': 'Paste Cloudinary image URL here or use the upload button below'
+            'placeholder': 'Paste Cloudinary image URL here'
         }
         if attrs:
             default_attrs.update(attrs)
         super().__init__(attrs=default_attrs)
-    
-    def get_context(self, name, value, attrs):
-        context = super().get_context(name, value, attrs)
-        context['widget']['cloudinary_upload'] = True
-        return context
 
 
 class BlogPostAdminForm(forms.ModelForm):
@@ -94,11 +89,20 @@ class BlogPostAdmin(admin.ModelAdmin):
         """
         Display image preview in list view
         """
-        if obj.featured_image:
-            if isinstance(obj.featured_image, str):
-                return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />', obj.featured_image)
-            elif obj.featured_image.url:
-                return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />', obj.featured_image.url)
+        try:
+            if not obj.featured_image:
+                return '—'
+            
+            # Get the URL - works with both strings and ImageField objects
+            img_url = str(obj.featured_image) if obj.featured_image else None
+            
+            if img_url and img_url.strip():
+                return format_html(
+                    '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />',
+                    img_url
+                )
+        except Exception:
+            pass
         return '—'
     image_preview.short_description = 'Image'
     
@@ -106,20 +110,37 @@ class BlogPostAdmin(admin.ModelAdmin):
         """
         Display large image preview in detail view
         """
-        if obj.featured_image:
-            if isinstance(obj.featured_image, str):
+        try:
+            if not obj.featured_image:
+                return format_html(
+                    '<div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc;">'
+                    '<p style="margin: 0; color: #999;">No image uploaded yet</p>'
+                    '<p style="margin: 8px 0 0 0; font-size: 12px; color: #666;">Upload a Cloudinary image URL above</p>'
+                    '</div>'
+                )
+            
+            # Get the URL - works with both strings and ImageField objects
+            img_url = str(obj.featured_image) if obj.featured_image else None
+            
+            if img_url and img_url.strip():
                 return format_html(
                     '<div style="margin: 10px 0;">'
                     '<img src="{}" style="max-width: 400px; max-height: 300px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; padding: 8px;" />'
-                    '<p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>URL:</strong> {}</p>'
+                    '<p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>URL:</strong> <code style="background: #f5f5f5; padding: 4px 6px; border-radius: 3px;">{}</code></p>'
                     '</div>',
-                    obj.featured_image if isinstance(obj.featured_image, str) else obj.featured_image.url,
-                    obj.featured_image if isinstance(obj.featured_image, str) else obj.featured_image.url
+                    img_url,
+                    img_url
                 )
+        except Exception as e:
+            return format_html(
+                '<div style="padding: 10px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">'
+                '<p style="margin: 0; color: #856404;">Error loading image preview</p>'
+                '</div>'
+            )
+        
         return format_html(
             '<div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc;">'
             '<p style="margin: 0; color: #999;">No image uploaded yet</p>'
-            '<p style="margin: 8px 0 0 0; font-size: 12px; color: #666;">Upload a Cloudinary image URL above</p>'
             '</div>'
         )
     image_preview_large.short_description = 'Image Preview'
