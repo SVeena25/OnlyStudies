@@ -93,10 +93,19 @@ class BlogPostAdmin(admin.ModelAdmin):
             if not obj.featured_image:
                 return '—'
             
-            # Get the URL - works with both strings and ImageField objects
-            img_url = str(obj.featured_image) if obj.featured_image else None
+            # Get the URL - handle both ImageField and direct URL strings
+            img_str = str(obj.featured_image)
             
-            if img_url and img_url.strip():
+            # Check if it's already a full URL (starts with http/https)
+            if img_str.startswith(('http://', 'https://')):
+                img_url = img_str
+            elif hasattr(obj.featured_image, 'url'):
+                # It's an ImageField, get the URL
+                img_url = obj.featured_image.url
+            else:
+                img_url = img_str
+            
+            if img_url and img_url.strip() and not img_url.startswith('/media/http'):
                 return format_html(
                     '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />',
                     img_url
@@ -119,14 +128,32 @@ class BlogPostAdmin(admin.ModelAdmin):
                     '</div>'
                 )
             
-            # Get the URL - works with both strings and ImageField objects
-            img_url = str(obj.featured_image) if obj.featured_image else None
+            # Get the URL - handle both ImageField and direct URL strings
+            img_str = str(obj.featured_image)
+            
+            # Check if it's already a full URL (starts with http/https)
+            if img_str.startswith(('http://', 'https://')):
+                img_url = img_str
+            elif hasattr(obj.featured_image, 'url'):
+                # It's an ImageField, try to get URL but fallback to string
+                try:
+                    url_value = obj.featured_image.url
+                    # Check if Django mangled it by adding /media/
+                    if url_value.startswith('/media/http'):
+                        img_url = img_str  # Use original string
+                    else:
+                        img_url = url_value
+                except:
+                    img_url = img_str
+            else:
+                img_url = img_str
             
             if img_url and img_url.strip():
                 return format_html(
                     '<div style="margin: 10px 0;">'
-                    '<img src="{}" style="max-width: 400px; max-height: 300px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; padding: 8px;" />'
-                    '<p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>URL:</strong> <code style="background: #f5f5f5; padding: 4px 6px; border-radius: 3px;">{}</code></p>'
+                    '<img src="{}" style="max-width: 400px; max-height: 300px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; padding: 8px;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';" />'
+                    '<p style="display: none; margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px; color: #856404;">Image failed to load. Check URL.</p>'
+                    '<p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>URL:</strong> <code style="background: #f5f5f5; padding: 4px 6px; border-radius: 3px; word-break: break-all;">{}</code></p>'
                     '</div>',
                     img_url,
                     img_url
@@ -135,7 +162,9 @@ class BlogPostAdmin(admin.ModelAdmin):
             return format_html(
                 '<div style="padding: 10px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">'
                 '<p style="margin: 0; color: #856404;">Error loading image preview</p>'
-                '</div>'
+                '<p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">Error: {}</p>'
+                '</div>',
+                str(e)
             )
         
         return format_html(
