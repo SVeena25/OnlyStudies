@@ -29,16 +29,20 @@ class BlogPostAdminForm(forms.ModelForm):
     """
     Custom form for BlogPost with Cloudinary upload widget
     """
-    featured_image = forms.CharField(
-        required=False,
-        label='Featured Image (Cloudinary URL)',
-        widget=CloudinaryUploadWidget(),
-        help_text='Upload via Cloudinary widget or paste a Cloudinary image URL'
-    )
     
     class Meta:
         model = BlogPost
         fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Replace the featured_image widget with custom Cloudinary widget
+        self.fields['featured_image'].widget = CloudinaryUploadWidget()
+        self.fields['featured_image'].widget.attrs.update({
+            'placeholder': 'Paste Cloudinary image URL here or use the upload button below'
+        })
+        self.fields['featured_image'].label = 'Featured Image (Cloudinary URL)'
+        self.fields['featured_image'].help_text = 'Upload via Cloudinary widget or paste a Cloudinary image URL'
 
 
 class SubCategoryInline(admin.TabularInline):
