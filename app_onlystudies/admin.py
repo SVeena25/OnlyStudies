@@ -1,5 +1,44 @@
 from django.contrib import admin
+from django import forms
+from django.utils.html import format_html
 from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer, Task, Appointment
+
+
+class CloudinaryUploadWidget(forms.widgets.TextInput):
+    """
+    Custom widget for Cloudinary image upload in admin
+    """
+    template_name = 'admin/cloudinary_upload_widget.html'
+    
+    def __init__(self, attrs=None):
+        default_attrs = {
+            'class': 'vTextField',
+            'placeholder': 'Paste Cloudinary image URL here or use the upload button below'
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+    
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['cloudinary_upload'] = True
+        return context
+
+
+class BlogPostAdminForm(forms.ModelForm):
+    """
+    Custom form for BlogPost with Cloudinary upload widget
+    """
+    featured_image = forms.CharField(
+        required=False,
+        label='Featured Image (Cloudinary URL)',
+        widget=CloudinaryUploadWidget(),
+        help_text='Upload via Cloudinary widget or paste a Cloudinary image URL'
+    )
+    
+    class Meta:
+        model = BlogPost
+        fields = '__all__'
 
 
 class SubCategoryInline(admin.TabularInline):
@@ -36,15 +75,50 @@ class SubCategoryAdmin(admin.ModelAdmin):
 @admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
     """
-    Admin for BlogPost model
+    Admin for BlogPost model with Cloudinary upload support
     """
-    list_display = ('title', 'author', 'category', 'is_published', 'created_at')
+    form = BlogPostAdminForm
+    list_display = ('title', 'author', 'category', 'image_preview', 'is_published', 'created_at')
     list_filter = ('is_published', 'category', 'created_at')
     prepopulated_fields = {'slug': ('title',)}
     search_fields = ('title', 'content', 'author__username')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'image_preview_large')
     
-    fields = ('title', 'slug', 'author', 'category', 'content', 'featured_image', 'is_published')
+    fields = ('title', 'slug', 'author', 'category', 'content', 'featured_image', 'image_preview_large', 'is_published')
+    
+    def image_preview(self, obj):
+        """
+        Display image preview in list view
+        """
+        if obj.featured_image:
+            if isinstance(obj.featured_image, str):
+                return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />', obj.featured_image)
+            elif obj.featured_image.url:
+                return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />', obj.featured_image.url)
+        return '—'
+    image_preview.short_description = 'Image'
+    
+    def image_preview_large(self, obj):
+        """
+        Display large image preview in detail view
+        """
+        if obj.featured_image:
+            if isinstance(obj.featured_image, str):
+                return format_html(
+                    '<div style="margin: 10px 0;">'
+                    '<img src="{}" style="max-width: 400px; max-height: 300px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; padding: 8px;" />'
+                    '<p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>URL:</strong> {}</p>'
+                    '</div>',
+                    obj.featured_image if isinstance(obj.featured_image, str) else obj.featured_image.url,
+                    obj.featured_image if isinstance(obj.featured_image, str) else obj.featured_image.url
+                )
+        return format_html(
+            '<div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc;">'
+            '<p style="margin: 0; color: #999;">No image uploaded yet</p>'
+            '<p style="margin: 8px 0 0 0; font-size: 12px; color: #666;">Upload a Cloudinary image URL above</p>'
+            '</div>'
+        )
+    image_preview_large.short_description = 'Image Preview'
     
     def get_fields(self, request, obj=None):
         """
@@ -54,6 +128,12 @@ class BlogPostAdmin(admin.ModelAdmin):
         if obj:  # Editing existing object
             fields.extend(['created_at', 'updated_at'])
         return fields
+    
+    class Media:
+        css = {
+            'all': ('admin/css/cloudinary_admin.css',)
+        }
+        js = ('admin/js/cloudinary_admin.js',)
 
 
 @admin.register(Notification)

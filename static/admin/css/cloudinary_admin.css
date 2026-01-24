@@ -1,0 +1,150 @@
+/**
+ * Cloudinary Admin Panel Styling
+ * Enhanced styles for Cloudinary upload integration
+ */
+
+.cloudinary-upload-container {
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.cloudinary-upload-container input[type="text"] {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.cloudinary-upload-container input[type="text"]:hover {
+    border-color: #ccc;
+    background-color: #fafafa;
+}
+
+.cloudinary-upload-container input[type="text"]:focus {
+    border-color: #667eea;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.cloudinary-upload-container a {
+    transition: all 0.2s ease;
+}
+
+.cloudinary-upload-container a:hover {
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Image preview styles in change list */
+.column-image_preview img {
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.column-image_preview img:hover {
+    transform: scale(1.05);
+}
+
+/* Instructions styling */
+.field-featured_image .help-text {
+    background-color: #e8f4f8;
+    border-left: 4px solid #667eea;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #333;
+}
+
+/* Readonly image preview */
+.field-image_preview_large {
+    margin: 20px 0;
+}
+
+.field-image_preview_large .readonly {
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 0;
+}
+
+/* Image preview in detail view */
+.field-image_preview_large img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading state */
+.cloudinary-upload-container.loading input {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Success/Error states */
+.cloudinary-validation-success {
+    color: #28a745 !important;
+    font-weight: 600;
+    animation: slideDown 0.3s ease;
+}
+
+.cloudinary-validation-error {
+    color: #dc3545 !important;
+    font-weight: 600;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .cloudinary-upload-container {
+        background-color: #3c3f4b;
+    }
+
+    .cloudinary-upload-container input[type="text"] {
+        background-color: #4a4d58;
+        border-color: #555;
+        color: #fff;
+    }
+
+    .cloudinary-upload-container input[type="text"]:focus {
+        border-color: #667eea;
+        background-color: #424552;
+    }
+
+    .field-featured_image .help-text {
+        background-color: #2a3f4d;
+        color: #ddd;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cloudinary-upload-container {
+        padding: 10px;
+    }
+
+    .cloudinary-upload-container a {
+        display: block;
+        text-align: center;
+        margin: 10px 0;
+    }
+}
