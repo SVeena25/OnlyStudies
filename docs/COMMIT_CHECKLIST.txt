@@ -1,0 +1,35 @@
+OnlyStudies Commit & Deploy Checklist
+====================================
+
+DO COMMIT (GitHub & Heroku deploys)
+- manage.py
+- only_studies/ (all project code)
+- app_onlystudies/ (including migrations)
+- templates/ (all HTML files)
+- static/ (source assets like css/img; exclude collected staticfiles)
+- requirements.txt
+- Procfile
+- SECURITY_AUDIT.md, SECURITY_IMPLEMENTATION.md, SECURITY_VERIFICATION.md, SECURITY_QUICK_REFERENCE.md
+- DATABASE_DEBUG_REPORT.md, HEROKU_DEPLOYMENT.md, DEPLOYMENT_READY.md, DROPDOWN_FUNCTIONALITY.md
+- README.md, SECURITY.md, USER_STORIES.md
+
+DO NOT COMMIT (keep local; never push to GitHub or Heroku)
+- .env, env.py, or any file with secrets/keys
+- .venv/ (virtual environment) or any virtualenv folder
+- __pycache__/ and *.pyc files
+- db.sqlite3 (local dev DB)
+- media/ (user uploads) unless intentionally versioned sample assets
+- staticfiles/ (collected static output)
+- *.log and debug output files
+- .DS_Store, Thumbs.db, or other OS-generated files
+
+Heroku Config (set as config vars, not in repo)
+- SECRET_KEY
+- DEBUG (False in production)
+- ALLOWED_HOSTS
+- DATABASE_URL (Heroku Postgres)
+- CLOUDINARY_URL (if using Cloudinary)
+
+Quick Rule
+- Commit source code, templates, migrations, and configuration files needed to run.
+- Never commit secrets, local databases, compiled artifacts, or environment-specific folders.
