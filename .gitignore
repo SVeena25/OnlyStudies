@@ -1,23 +1,77 @@
+# Environment variables
+.env
+.env.local
+env.py
+
 # Byte-compiled files
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
 
 # Distribution / packaging
 .Python
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual environment
 .venv/
+venv/
+ENV/
 
 # Database
 db.sqlite3
+*.sqlite3
 
 # Logs
 *.log
+error_log.txt
 
-env.py
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
 
-# Documentation
+# Documentation and sensitive files
 docs/
+BEFORE_AFTER_COMPARISON.md
+CLOUDINARY_INTEGRATION_SUMMARY.md
+
+# Media
+media/
+staticfiles/
+
+# Cache
+.cache/
+.pytest_cache/
+.coverage
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Local testing scripts
+check_blog_7.py
+check_debug.py
+update_image.py
+
+# Node modules
+node_modules/

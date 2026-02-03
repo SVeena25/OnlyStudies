@@ -1,65 +1,6 @@
 from django.contrib import admin
-from django import forms
 from django.utils.html import format_html
 from .models import Category, SubCategory, BlogPost, Notification, ForumQuestion, ForumAnswer, Task, Appointment
-
-
-class CloudinaryUploadWidget(forms.widgets.TextInput):
-    """
-    Custom widget for Cloudinary image upload in admin
-    """
-    template_name = 'admin/cloudinary_upload_widget.html'
-    
-    def __init__(self, attrs=None):
-        default_attrs = {
-            'class': 'vTextField',
-            'placeholder': 'Paste Cloudinary image URL here'
-        }
-        if attrs:
-            default_attrs.update(attrs)
-        super().__init__(attrs=default_attrs)
-
-
-class BlogPostAdminForm(forms.ModelForm):
-    """
-    Custom form for BlogPost with Cloudinary upload widget
-    """
-    
-    class Meta:
-        model = BlogPost
-        fields = '__all__'
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Replace the featured_image widget with custom Cloudinary widget
-        self.fields['featured_image'].required = False
-        self.fields['featured_image'].widget = CloudinaryUploadWidget()
-        self.fields['featured_image'].widget.attrs.update({
-            'placeholder': 'Paste Cloudinary image URL here or use the upload button below'
-        })
-        self.fields['featured_image'].label = 'Featured Image (Cloudinary URL)'
-        self.fields['featured_image'].help_text = 'Upload via Cloudinary widget or paste a Cloudinary image URL'
-    
-    def clean_featured_image(self):
-        """
-        Handle Cloudinary URL properly - convert to just the path/URL string
-        """
-        featured_image = self.cleaned_data.get('featured_image')
-        
-        # If it's empty or None, return as is
-        if not featured_image:
-            return featured_image
-        
-        # If it's already a string (Cloudinary URL), return it
-        if isinstance(featured_image, str):
-            return featured_image
-        
-        # If it has a .name attribute, it's a file upload - return as is
-        if hasattr(featured_image, 'name'):
-            return featured_image
-        
-        # Otherwise convert to string
-        return str(featured_image) if featured_image else None
 
 
 class SubCategoryInline(admin.TabularInline):
@@ -96,9 +37,8 @@ class SubCategoryAdmin(admin.ModelAdmin):
 @admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
     """
-    Admin for BlogPost model with Cloudinary upload support
+    Admin for BlogPost model
     """
-    form = BlogPostAdminForm
     list_display = ('title', 'author', 'category', 'image_preview', 'is_published', 'created_at')
     list_filter = ('is_published', 'category', 'created_at')
     prepopulated_fields = {'slug': ('title',)}
@@ -146,7 +86,6 @@ class BlogPostAdmin(admin.ModelAdmin):
                 return format_html(
                     '<div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc;">'
                     '<p style="margin: 0; color: #999;">No image uploaded yet</p>'
-                    '<p style="margin: 8px 0 0 0; font-size: 12px; color: #666;">Upload a Cloudinary image URL above</p>'
                     '</div>'
                 )
             
@@ -175,18 +114,14 @@ class BlogPostAdmin(admin.ModelAdmin):
                     '<div style="margin: 10px 0;">'
                     '<img src="{}" style="max-width: 400px; max-height: 300px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; padding: 8px;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\';" />'
                     '<p style="display: none; margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px; color: #856404;">Image failed to load. Check URL.</p>'
-                    '<p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>URL:</strong> <code style="background: #f5f5f5; padding: 4px 6px; border-radius: 3px; word-break: break-all;">{}</code></p>'
                     '</div>',
-                    img_url,
                     img_url
                 )
         except Exception as e:
             return format_html(
                 '<div style="padding: 10px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">'
                 '<p style="margin: 0; color: #856404;">Error loading image preview</p>'
-                '<p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">Error: {}</p>'
-                '</div>',
-                str(e)
+                '</div>'
             )
         
         return format_html(
@@ -196,19 +131,6 @@ class BlogPostAdmin(admin.ModelAdmin):
         )
     image_preview_large.short_description = 'Image Preview'
     
-    def save_model(self, request, obj, form, change):
-        """
-        Custom save to handle Cloudinary URL in featured_image field
-        """
-        # If featured_image was changed and it's a URL string, save it directly
-        if 'featured_image' in form.changed_data:
-            featured_image = form.cleaned_data.get('featured_image')
-            if featured_image and isinstance(featured_image, str):
-                # It's a Cloudinary URL string, assign it directly
-                obj.featured_image = featured_image
-        
-        super().save_model(request, obj, form, change)
-    
     def get_fields(self, request, obj=None):
         """
         Show timestamps only when editing
@@ -217,12 +139,6 @@ class BlogPostAdmin(admin.ModelAdmin):
         if obj:  # Editing existing object
             fields.extend(['created_at', 'updated_at'])
         return fields
-    
-    class Media:
-        css = {
-            'all': ('admin/css/cloudinary_admin.css',)
-        }
-        js = ('admin/js/cloudinary_admin.js',)
 
 
 @admin.register(Notification)
