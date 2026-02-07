@@ -142,7 +142,19 @@ class SignUpView(CreateView):
         """
         user = form.save()
         # Authenticate and login the user after signup
-        login(self.request, user)
+        raw_password = form.cleaned_data.get('password')
+        authenticated_user = authenticate(
+            self.request,
+            username=user.username,
+            password=raw_password,
+        )
+        if authenticated_user is not None:
+            login(self.request, authenticated_user)
+        else:
+            messages.warning(
+                self.request,
+                'Your account was created, but automatic login failed. Please log in.'
+            )
         return redirect(self.success_url)
 
     def get_context_data(self, **kwargs):
