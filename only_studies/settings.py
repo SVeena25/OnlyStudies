@@ -46,8 +46,14 @@ ALLOWED_HOSTS = ["localhost",
                  "127.0.0.1",
                  "testserver",
                  "0.0.0.0",
-                #  "only-studies-61de8e7773bd.herokuapp.com"
+                 "only-studies-61de8e7773bd.herokuapp.com",
                  "only-studies-test-2f92bf59f108.herokuapp.com"]
+
+# Trusted origins for CSRF protection (required for HTTPS on Heroku)
+CSRF_TRUSTED_ORIGINS = [
+    "https://only-studies-61de8e7773bd.herokuapp.com",
+    "https://only-studies-test-2f92bf59f108.herokuapp.com",
+]
 
 # Application definition
 
